@@ -78,7 +78,7 @@ def load_stocks_data_from_files():
 
         stocks_data = pd.concat([stocks_data, row_data[0:10]])   # todo move to settings
 
-    return stocks_data
+    return stocks_data.round(2)
 
 
 def load_crypto_currencies_data_from_files():
@@ -103,7 +103,7 @@ def load_crypto_currencies_data_from_files():
 
         crypto_currency_data = pd.concat([crypto_currency_data, row_data[0:10]])   # todo move to settings
 
-    return crypto_currency_data
+    return crypto_currency_data.round(2)
 
 
 def load_hryvnia_data_from_files():
@@ -128,7 +128,7 @@ def load_hryvnia_data_from_files():
 
         hryvnia_currency_data = pd.concat([hryvnia_currency_data, row_data[0:10]])   # todo move to settings
 
-    return hryvnia_currency_data
+    return hryvnia_currency_data.round(2)
 
 
 stocks = load_stocks_data_from_files()
@@ -362,8 +362,6 @@ def get_hryvnia_currency_data(session, name, from_symbol, to_symbol, api_key, fu
         print(f"data for {name} was downloaded")
     else:
         raise Exception(response.status_code, response.reason)
-
-
 
 
 @app.callback(
