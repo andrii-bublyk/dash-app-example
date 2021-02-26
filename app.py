@@ -24,16 +24,6 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 
-app.layout = html.Div([
-    html.H2('Hello World'),
-    dcc.Dropdown(
-        id='dropdown',
-        options=[{'label': i, 'value': i} for i in ['LA', 'NYC', 'MTL']],
-        value='LA'
-    ),
-    html.Div(id='display-value')
-])
-
 @app.callback(dash.dependencies.Output('display-value', 'children'),
               [dash.dependencies.Input('dropdown', 'value')])
 def display_value(value):
@@ -41,7 +31,7 @@ def display_value(value):
 
 
 def make_layout():
-    app.layout = html.Div(children=[
+    return html.Div(children=[
         dcc.Tabs([
             dcc.Tab(label="Stock Price", children=[
                 html.Div([
@@ -161,8 +151,5 @@ def make_layout():
 
 
 if __name__ == '__main__':
-    make_layout()
-
-    app.run_server(debug=False)
-
+    app.layout = make_layout()
     app.run_server(debug=False)
