@@ -59,7 +59,7 @@ HRYVNIA_CURRENCY = {
 stocks = []
 crypto = []
 hryvnia = []
-
+session = requests.Session()
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # app = dash.Dash(__name__, external_stylesheets=external_stylesheets)  # old stylesheet
@@ -452,7 +452,7 @@ def load_hryvnia_currency_data():
 
 
 if __name__ == '__main__':
-    session = requests.Session()
+    # session = requests.Session()
 
     if not API_KEY:
         raise Exception("Can't load ALPHA_VANTAGE_API_KEY")
