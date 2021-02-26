@@ -503,5 +503,5 @@ if __name__ == '__main__':
 
     make_layout(stocks, crypto, hryvnia)
 
-    app.run_server(debug=False)
+    app.run_server(debug=True)
 
