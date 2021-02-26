@@ -18,6 +18,48 @@ import dash_bootstrap_components as dbc
 from whitenoise import WhiteNoise
 
 
+load_dotenv()
+API_KEY = os.environ.get("ALPHA_VANTAGE_API_KEY")
+STOCK_DATA_FOLDER = os.environ.get("STOCKS_DATA_FOLDER")
+CRYPTO_CURRENCY_DATA_FOLDER = os.environ.get("CRYPTO_CURRENCY_DATA_FOLDER")
+HRYVNIA_CURRENCY_DATA_FOLDER = os.environ.get("HRYVNIA_CURRENCY_DATA_FOLDER")
+
+ALPHA_VANTAGE_BASE_QUERY_URL = "http://www.alphavantage.co/query"
+API_CALL_SLEEP_SEC = 60
+
+STOCKS = {
+    "Alibaba": "BABA",
+    "Alphabet": "GOOGL",
+    "Amazon": "AMZN",
+    "Apple": "AAPL",
+    "Facebook": "FB",
+    "Microsoft": "MSFT",
+    "Netflix": "NFLX",
+    "Oracle": "ORCL",
+    "Tesla": "TSLA",
+    "Twitter": "TWTR"
+}
+
+CRYPTO_CURRENCIES = {
+    "Bitcoin": "BTC",
+    "EOS.IO": "EOS",
+    "Ethereum": "ETH",
+    "Neo": "NEO",
+    "Ripple": "XRP"
+}
+
+HRYVNIA_CURRENCY = {
+    "United States Dollar": "USD",
+    "Euro": "EUR",
+    # "Polish Zloty": "PLN",
+    "Japanese Yen": "JPY",
+    "British Pound Sterling": "GBP"
+}
+
+stocks = []
+crypto = []
+hryvnia = []
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -140,7 +182,6 @@ app.layout = html.Div(children=[
         ]),
     ])
 ])
-
 
 if __name__ == '__main__':
     app.run_server(debug=False)
