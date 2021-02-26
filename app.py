@@ -60,10 +60,36 @@ stocks = []
 crypto = []
 hryvnia = []
 
+
+def load_stocks_data_from_files():
+    csv_files = [
+        f for f in listdir(STOCK_DATA_FOLDER) if (isfile(join(STOCK_DATA_FOLDER, f)) and f.endswith(".csv"))]
+
+    stock_file_path = join(STOCK_DATA_FOLDER, csv_files[0])
+    row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
+    row_data = row_data.drop(columns=["Unnamed: 0"])
+    row_data.insert(0, "name", csv_files[0].split('.')[0])
+    stocks_data = row_data
+
+    for index, stock_file in enumerate(csv_files):
+        if index == 0:
+            continue
+
+        stock_file_path = join(STOCK_DATA_FOLDER, stock_file)
+        row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
+        row_data = row_data.drop(columns=["Unnamed: 0"])
+        row_data.insert(0, "name", stock_file.split('.')[0])
+
+        stocks_data = pd.concat([stocks_data, row_data[0:10]])   # todo move to settings
+
+    return stocks_data
+
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
+server.wsgi_app = WhiteNoise(server.wsgi_app, root='static/')
 
 app.layout = html.Div(children=[
     dcc.Tabs([
@@ -184,4 +210,23 @@ app.layout = html.Div(children=[
 ])
 
 if __name__ == '__main__':
+    session = requests.Session()
+
+    if not API_KEY:
+        raise Exception("Can't load ALPHA_VANTAGE_API_KEY")
+
+    # if not os.path.exists(STOCK_DATA_FOLDER):
+    #     os.makedirs(STOCK_DATA_FOLDER)
+    #     load_stock_data()
+    #
+    # if not os.path.exists(CRYPTO_CURRENCY_DATA_FOLDER):
+    #     os.makedirs(CRYPTO_CURRENCY_DATA_FOLDER)
+    #     load_crypto_currency_data()
+    #
+    # if not os.path.exists(HRYVNIA_CURRENCY_DATA_FOLDER):
+    #     os.makedirs(HRYVNIA_CURRENCY_DATA_FOLDER)
+    #     load_hryvnia_currency_data()
+
+    stocks = load_stocks_data_from_files()
+
     app.run_server(debug=False)
