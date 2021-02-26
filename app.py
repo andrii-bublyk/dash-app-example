@@ -40,5 +40,129 @@ def display_value(value):
     return 'You have selected "{}"'.format(value)
 
 
+def make_layout():
+    app.layout = html.Div(children=[
+        dcc.Tabs([
+            dcc.Tab(label="Stock Price", children=[
+                html.Div([
+                    html.Div([
+                        dbc.Button("Update stock data",
+                                   id="update-stock",
+                                   style={
+                                       'margin': 20
+                                   }),
+                        dbc.Spinner(html.Div(id="stock-loading-output", style={'margin': 20, 'font-style': 'italic'}))
+                    ]),
+                    html.Div([
+                        html.Label("Select parameter: "),
+                        dcc.Dropdown(
+                            id='stock-yaxis')
+                        ]),
+                ],
+                    style={'width': '25%', 'display': 'inline-block', 'margin': 20}),
+                html.Div([
+                    dcc.Graph(
+                        id='stock-graph',
+                    ),
+
+                    dash_table.DataTable(
+                        id='stock-table',
+                        filter_action='native',
+                        style_table={
+                            'height': 400,
+                        },
+                        style_data={
+                            'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
+                            'overflow': 'hidden',
+                            'textOverflow': 'ellipsis'
+                        }
+                    )
+                ])
+            ]),
+            dcc.Tab(label="Crypto Currencies Price", children=[
+                html.Div([
+                    html.Div([
+                        dbc.Button("Update crypto currencies data",
+                                   id="update-crypto",
+                                   style={
+                                       'margin': 20
+                                   }),
+                        dbc.Spinner(html.Div(id="crypto-loading-output", style={'margin': 20, 'font-style': 'italic'})),
+                    ]),
+
+                    html.Div([
+                        html.Label("Select parameter: "),
+                        dcc.Dropdown(
+                            id='crypto-yaxis'
+                        )
+                    ],
+                        style={'width': '25%', 'display': 'inline-block', 'margin': 20})
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id='crypto-graph'
+                    ),
+
+                    dash_table.DataTable(
+                        id='crypto-table',
+                        filter_action='native',
+                        style_table={
+                            'height': 400,
+                        },
+                        style_data={
+                            'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
+                            'overflow': 'hidden',
+                            'textOverflow': 'ellipsis'
+                        }
+                    )
+                ])
+            ]),
+            dcc.Tab(label="Ukrainian Hryvnia", children=[
+                html.Div([
+                    html.Div([
+                        dbc.Button("Update hryvnia currencies data",
+                                   id="update-hryvnia",
+                                   style={
+                                       'margin': 20
+                                   }),
+                        dbc.Spinner(html.Div(id="hryvnia-loading-output", style={'margin': 20, 'font-style': 'italic'})),
+                    ]),
+
+                    html.Div([
+                        html.Label("Select parameter: "),
+                        dcc.Dropdown(
+                            id='hryvnia-yaxis'
+                        )
+                    ],
+                        style={'width': '25%', 'display': 'inline-block', 'margin': 20})
+
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id='hryvnia-graph'
+                    ),
+
+                    dash_table.DataTable(
+                        id='hryvnia-table',
+                        filter_action='native',
+                        style_table={
+                            'height': 400,
+                        },
+                        style_data={
+                            'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
+                            'overflow': 'hidden',
+                            'textOverflow': 'ellipsis'
+                        }
+                    )
+                ])
+            ]),
+        ])
+    ])
+
+
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    make_layout()
+
+    app.run_server(debug=False)
+
+    app.run_server(debug=False)
