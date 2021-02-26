@@ -56,9 +56,84 @@ HRYVNIA_CURRENCY = {
     "British Pound Sterling": "GBP"
 }
 
-stocks = []
-crypto = []
-hryvnia = []
+
+def load_stocks_data_from_files():
+    csv_files = [
+        f for f in listdir(STOCK_DATA_FOLDER) if (isfile(join(STOCK_DATA_FOLDER, f)) and f.endswith(".csv"))]
+
+    stock_file_path = join(STOCK_DATA_FOLDER, csv_files[0])
+    row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
+    row_data = row_data.drop(columns=["Unnamed: 0"])
+    row_data.insert(0, "name", csv_files[0].split('.')[0])
+    stocks_data = row_data
+
+    for index, stock_file in enumerate(csv_files):
+        if index == 0:
+            continue
+
+        stock_file_path = join(STOCK_DATA_FOLDER, stock_file)
+        row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
+        row_data = row_data.drop(columns=["Unnamed: 0"])
+        row_data.insert(0, "name", stock_file.split('.')[0])
+
+        stocks_data = pd.concat([stocks_data, row_data[0:10]])   # todo move to settings
+
+    return stocks_data
+
+
+def load_crypto_currencies_data_from_files():
+    csv_files = [
+        f for f in listdir(CRYPTO_CURRENCY_DATA_FOLDER) if (isfile(join(CRYPTO_CURRENCY_DATA_FOLDER, f))
+                                                            and f.endswith(".csv"))]
+
+    crypto_currency_file_path = join(CRYPTO_CURRENCY_DATA_FOLDER, csv_files[0])
+    row_data = pd.read_csv(crypto_currency_file_path, nrows=10)  # todo move to settings
+    row_data = row_data.drop(columns=["Unnamed: 0"])
+    row_data.insert(0, "name", csv_files[0].split('.')[0])
+    crypto_currency_data = row_data
+
+    for index, crypto_currency_file in enumerate(csv_files):
+        if index == 0:
+            continue
+
+        crypto_currency_file_path = join(CRYPTO_CURRENCY_DATA_FOLDER, crypto_currency_file)
+        row_data = pd.read_csv(crypto_currency_file_path, nrows=10)  # todo move to settings
+        row_data = row_data.drop(columns=["Unnamed: 0"])
+        row_data.insert(0, "name", crypto_currency_file.split('.')[0])
+
+        crypto_currency_data = pd.concat([crypto_currency_data, row_data[0:10]])   # todo move to settings
+
+    return crypto_currency_data
+
+
+def load_hryvnia_data_from_files():
+    csv_files = [
+        f for f in listdir(HRYVNIA_CURRENCY_DATA_FOLDER) if (isfile(join(HRYVNIA_CURRENCY_DATA_FOLDER, f))
+                                                             and f.endswith(".csv"))]
+
+    hryvnia_currency_file_path = join(HRYVNIA_CURRENCY_DATA_FOLDER, csv_files[0])
+    row_data = pd.read_csv(hryvnia_currency_file_path, nrows=10)  # todo move to settings
+    row_data = row_data.drop(columns=["Unnamed: 0"])
+    row_data.insert(0, "name", csv_files[0].split('.')[0])
+    hryvnia_currency_data = row_data
+
+    for index, stock_file in enumerate(csv_files):
+        if index == 0:
+            continue
+
+        hryvnia_currency_file_path = join(HRYVNIA_CURRENCY_DATA_FOLDER, stock_file)
+        row_data = pd.read_csv(hryvnia_currency_file_path, nrows=10)  # todo move to settings
+        row_data = row_data.drop(columns=["Unnamed: 0"])
+        row_data.insert(0, "name", stock_file.split('.')[0])
+
+        hryvnia_currency_data = pd.concat([hryvnia_currency_data, row_data[0:10]])   # todo move to settings
+
+    return hryvnia_currency_data
+
+
+stocks = load_stocks_data_from_files()
+crypto = load_crypto_currencies_data_from_files()
+hryvnia = load_hryvnia_data_from_files()
 session = requests.Session()
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -67,123 +142,137 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 server.wsgi_app = WhiteNoise(server.wsgi_app, root='static/')
 
-app.layout = html.Div(children=[
-    dcc.Tabs([
-        dcc.Tab(label="Stock Price", children=[
-            html.Div([
+app.layout = \
+    html.Div(children=[
+        dcc.Tabs([
+            dcc.Tab(label="Stock Price", children=[
                 html.Div([
-                    dbc.Button("Update stock data",
-                               id="update-stock",
-                               style={
-                                   'margin': 20
-                               }),
-                    dbc.Spinner(html.Div(id="stock-loading-output", style={'margin': 20, 'font-style': 'italic'}))
-                ]),
-                html.Div([
-                    html.Label("Select parameter: "),
-                    dcc.Dropdown(
-                        id='stock-yaxis')
+                    html.Div([
+                        dbc.Button("Update stock data",
+                                   id="update-stock",
+                                   style={
+                                       'margin': 20
+                                   }),
+                        dbc.Spinner(html.Div(id="stock-loading-output", style={'margin': 20, 'font-style': 'italic'}))
                     ]),
-            ],
-                style={'width': '25%', 'display': 'inline-block', 'margin': 20}),
-            html.Div([
-                dcc.Graph(
-                    id='stock-graph',
-                ),
-
-                dash_table.DataTable(
-                    id='stock-table',
-                    filter_action='native',
-                    style_table={
-                        'height': 400,
-                    },
-                    style_data={
-                        'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
-                        'overflow': 'hidden',
-                        'textOverflow': 'ellipsis'
-                    }
-                )
-            ])
-        ]),
-        dcc.Tab(label="Crypto Currencies Price", children=[
-            html.Div([
-                html.Div([
-                    dbc.Button("Update crypto currencies data",
-                               id="update-crypto",
-                               style={
-                                   'margin': 20
-                               }),
-                    dbc.Spinner(html.Div(id="crypto-loading-output", style={'margin': 20, 'font-style': 'italic'})),
-                ]),
-
-                html.Div([
-                    html.Label("Select parameter: "),
-                    dcc.Dropdown(
-                        id='crypto-yaxis'
-                    )
+                    html.Div([
+                        html.Label("Select parameter: "),
+                        dcc.Dropdown(
+                            id='stock-yaxis',
+                            options=[{"label": i, "value": i} for i in stocks.columns[2:]],
+                            value=stocks.columns[2])
+                    ]),
                 ],
-                    style={'width': '25%', 'display': 'inline-block', 'margin': 20})
-            ]),
-            html.Div([
-                dcc.Graph(
-                    id='crypto-graph'
-                ),
-
-                dash_table.DataTable(
-                    id='crypto-table',
-                    filter_action='native',
-                    style_table={
-                        'height': 400,
-                    },
-                    style_data={
-                        'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
-                        'overflow': 'hidden',
-                        'textOverflow': 'ellipsis'
-                    }
-                )
-            ])
-        ]),
-        dcc.Tab(label="Ukrainian Hryvnia", children=[
-            html.Div([
+                    style={'width': '25%', 'display': 'inline-block', 'margin': 20}),
                 html.Div([
-                    dbc.Button("Update hryvnia currencies data",
-                               id="update-hryvnia",
-                               style={
-                                   'margin': 20
-                               }),
-                    dbc.Spinner(html.Div(id="hryvnia-loading-output", style={'margin': 20, 'font-style': 'italic'})),
-                ]),
+                    dcc.Graph(
+                        id='stock-graph',
+                    ),
 
-                html.Div([
-                    html.Label("Select parameter: "),
-                    dcc.Dropdown(
-                        id='hryvnia-yaxis'
+                    dash_table.DataTable(
+                        id='stock-table',
+                        columns=[{"name": i, "id": i} for i in stocks.columns],
+                        data=stocks.to_dict('records'),
+                        filter_action='native',
+                        style_table={
+                            'height': 400,
+                        },
+                        style_data={
+                            'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
+                            'overflow': 'hidden',
+                            'textOverflow': 'ellipsis'
+                        }
                     )
-                ],
-                    style={'width': '25%', 'display': 'inline-block', 'margin': 20})
-
+                ])
             ]),
-            html.Div([
-                dcc.Graph(
-                    id='hryvnia-graph'
-                ),
+            dcc.Tab(label="Crypto Currencies Price", children=[
+                html.Div([
+                    html.Div([
+                        dbc.Button("Update crypto currencies data",
+                                   id="update-crypto",
+                                   style={
+                                       'margin': 20
+                                   }),
+                        dbc.Spinner(html.Div(id="crypto-loading-output", style={'margin': 20, 'font-style': 'italic'})),
+                    ]),
 
-                dash_table.DataTable(
-                    id='hryvnia-table',
-                    filter_action='native',
-                    style_table={
-                        'height': 400,
-                    },
-                    style_data={
-                        'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
-                        'overflow': 'hidden',
-                        'textOverflow': 'ellipsis'
-                    }
-                )
-            ])
-        ]),
+                    html.Div([
+                        html.Label("Select parameter: "),
+                        dcc.Dropdown(
+                            id='crypto-yaxis',
+                            options=[{"label": i, "value": i} for i in crypto.columns[2:]],
+                            value=crypto.columns[3]
+                        )
+                    ],
+                        style={'width': '25%', 'display': 'inline-block', 'margin': 20})
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id='crypto-graph'
+                    ),
+
+                    dash_table.DataTable(
+                        id='crypto-table',
+                        columns=[{"name": i, "id": i} for i in crypto.columns],
+                        data=crypto.to_dict('records'),
+                        filter_action='native',
+                        style_table={
+                            'height': 400,
+                        },
+                        style_data={
+                            'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
+                            'overflow': 'hidden',
+                            'textOverflow': 'ellipsis'
+                        }
+                    )
+                ])
+            ]),
+            dcc.Tab(label="Ukrainian Hryvnia", children=[
+                html.Div([
+                    html.Div([
+                        dbc.Button("Update hryvnia currencies data",
+                                   id="update-hryvnia",
+                                   style={
+                                       'margin': 20
+                                   }),
+                        dbc.Spinner(
+                            html.Div(id="hryvnia-loading-output", style={'margin': 20, 'font-style': 'italic'})),
+                    ]),
+
+                    html.Div([
+                        html.Label("Select parameter: "),
+                        dcc.Dropdown(
+                            id='hryvnia-yaxis',
+                            options=[{"label": i, "value": i} for i in hryvnia.columns[2:]],
+                            value=hryvnia.columns[3]
+                        )
+                    ],
+                        style={'width': '25%', 'display': 'inline-block', 'margin': 20})
+
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id='hryvnia-graph'
+                    ),
+
+                    dash_table.DataTable(
+                        id='hryvnia-table',
+                        columns=[{"name": i, "id": i} for i in hryvnia.columns],
+                        data=hryvnia.to_dict('records'),
+                        filter_action='native',
+                        style_table={
+                            'height': 400,
+                        },
+                        style_data={
+                            'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
+                            'overflow': 'hidden',
+                            'textOverflow': 'ellipsis'
+                        }
+                    )
+                ])
+            ]),
+        ])
     ])
-])
 
 
 def get_stock_data(session, name, symbol, api_key, function, datatype):
@@ -275,78 +364,6 @@ def get_hryvnia_currency_data(session, name, from_symbol, to_symbol, api_key, fu
         raise Exception(response.status_code, response.reason)
 
 
-def load_stocks_data_from_files():
-    csv_files = [
-        f for f in listdir(STOCK_DATA_FOLDER) if (isfile(join(STOCK_DATA_FOLDER, f)) and f.endswith(".csv"))]
-
-    stock_file_path = join(STOCK_DATA_FOLDER, csv_files[0])
-    row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
-    row_data = row_data.drop(columns=["Unnamed: 0"])
-    row_data.insert(0, "name", csv_files[0].split('.')[0])
-    stocks_data = row_data
-
-    for index, stock_file in enumerate(csv_files):
-        if index == 0:
-            continue
-
-        stock_file_path = join(STOCK_DATA_FOLDER, stock_file)
-        row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
-        row_data = row_data.drop(columns=["Unnamed: 0"])
-        row_data.insert(0, "name", stock_file.split('.')[0])
-
-        stocks_data = pd.concat([stocks_data, row_data[0:10]])   # todo move to settings
-
-    return stocks_data
-
-
-def load_crypto_currencies_data_from_files():
-    csv_files = [
-        f for f in listdir(CRYPTO_CURRENCY_DATA_FOLDER) if (isfile(join(CRYPTO_CURRENCY_DATA_FOLDER, f))
-                                                            and f.endswith(".csv"))]
-
-    crypto_currency_file_path = join(CRYPTO_CURRENCY_DATA_FOLDER, csv_files[0])
-    row_data = pd.read_csv(crypto_currency_file_path, nrows=10)  # todo move to settings
-    row_data = row_data.drop(columns=["Unnamed: 0"])
-    row_data.insert(0, "name", csv_files[0].split('.')[0])
-    crypto_currency_data = row_data
-
-    for index, crypto_currency_file in enumerate(csv_files):
-        if index == 0:
-            continue
-
-        crypto_currency_file_path = join(CRYPTO_CURRENCY_DATA_FOLDER, crypto_currency_file)
-        row_data = pd.read_csv(crypto_currency_file_path, nrows=10)  # todo move to settings
-        row_data = row_data.drop(columns=["Unnamed: 0"])
-        row_data.insert(0, "name", crypto_currency_file.split('.')[0])
-
-        crypto_currency_data = pd.concat([crypto_currency_data, row_data[0:10]])   # todo move to settings
-
-    return crypto_currency_data
-
-
-def load_hryvnia_data_from_files():
-    csv_files = [
-        f for f in listdir(HRYVNIA_CURRENCY_DATA_FOLDER) if (isfile(join(HRYVNIA_CURRENCY_DATA_FOLDER, f))
-                                                             and f.endswith(".csv"))]
-
-    hryvnia_currency_file_path = join(HRYVNIA_CURRENCY_DATA_FOLDER, csv_files[0])
-    row_data = pd.read_csv(hryvnia_currency_file_path, nrows=10)  # todo move to settings
-    row_data = row_data.drop(columns=["Unnamed: 0"])
-    row_data.insert(0, "name", csv_files[0].split('.')[0])
-    hryvnia_currency_data = row_data
-
-    for index, stock_file in enumerate(csv_files):
-        if index == 0:
-            continue
-
-        hryvnia_currency_file_path = join(HRYVNIA_CURRENCY_DATA_FOLDER, stock_file)
-        row_data = pd.read_csv(hryvnia_currency_file_path, nrows=10)  # todo move to settings
-        row_data = row_data.drop(columns=["Unnamed: 0"])
-        row_data.insert(0, "name", stock_file.split('.')[0])
-
-        hryvnia_currency_data = pd.concat([hryvnia_currency_data, row_data[0:10]])   # todo move to settings
-
-    return hryvnia_currency_data
 
 
 @app.callback(
@@ -469,8 +486,8 @@ if __name__ == '__main__':
     #     os.makedirs(HRYVNIA_CURRENCY_DATA_FOLDER)
     #     load_hryvnia_currency_data()
 
-    stocks = load_stocks_data_from_files()
-    crypto = load_crypto_currencies_data_from_files()
-    hryvnia = load_hryvnia_data_from_files()
+    # stocks = load_stocks_data_from_files()
+    # crypto = load_crypto_currencies_data_from_files()
+    # hryvnia = load_hryvnia_data_from_files()
 
     app.run_server(debug=False)
