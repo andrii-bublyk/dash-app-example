@@ -435,7 +435,7 @@ def load_stock_data():
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = [pool.submit(get_stock_data, *args) for args in _args]
-        wait(futures, timeout=130, return_when=ALL_COMPLETED)
+        wait(futures, timeout=150, return_when=ALL_COMPLETED)
 
     print("done")
 
@@ -448,7 +448,7 @@ def load_crypto_currency_data():
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = [pool.submit(get_crypto_currency_data, *args) for args in _args]
-        wait(futures, timeout=130, return_when=ALL_COMPLETED)
+        wait(futures, timeout=150, return_when=ALL_COMPLETED)
 
     print("done")
 
@@ -461,14 +461,12 @@ def load_hryvnia_currency_data():
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = [pool.submit(get_hryvnia_currency_data, *args) for args in _args]
-        wait(futures, timeout=130, return_when=ALL_COMPLETED)
+        wait(futures, timeout=150, return_when=ALL_COMPLETED)
 
     print("done")
 
 
 if __name__ == '__main__':
-    # session = requests.Session()
-
     if not API_KEY:
         raise Exception("Can't load ALPHA_VANTAGE_API_KEY")
 
@@ -483,9 +481,5 @@ if __name__ == '__main__':
     # if not os.path.exists(HRYVNIA_CURRENCY_DATA_FOLDER):
     #     os.makedirs(HRYVNIA_CURRENCY_DATA_FOLDER)
     #     load_hryvnia_currency_data()
-
-    # stocks = load_stocks_data_from_files()
-    # crypto = load_crypto_currencies_data_from_files()
-    # hryvnia = load_hryvnia_data_from_files()
 
     app.run_server(debug=False)
