@@ -61,32 +61,8 @@ crypto = []
 hryvnia = []
 
 
-def load_stocks_data_from_files():
-    csv_files = [
-        f for f in listdir(STOCK_DATA_FOLDER) if (isfile(join(STOCK_DATA_FOLDER, f)) and f.endswith(".csv"))]
-
-    stock_file_path = join(STOCK_DATA_FOLDER, csv_files[0])
-    row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
-    row_data = row_data.drop(columns=["Unnamed: 0"])
-    row_data.insert(0, "name", csv_files[0].split('.')[0])
-    stocks_data = row_data
-
-    for index, stock_file in enumerate(csv_files):
-        if index == 0:
-            continue
-
-        stock_file_path = join(STOCK_DATA_FOLDER, stock_file)
-        row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
-        row_data = row_data.drop(columns=["Unnamed: 0"])
-        row_data.insert(0, "name", stock_file.split('.')[0])
-
-        stocks_data = pd.concat([stocks_data, row_data[0:10]])   # todo move to settings
-
-    return stocks_data
-
-
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-# app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+# app = dash.Dash(__name__, external_stylesheets=external_stylesheets)  # old stylesheet
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 server.wsgi_app = WhiteNoise(server.wsgi_app, root='static/')
@@ -209,6 +185,272 @@ app.layout = html.Div(children=[
     ])
 ])
 
+
+def get_stock_data(session, name, symbol, api_key, function, datatype):
+    params = {
+        "function": function,
+        "symbol": symbol,
+        "apikey": api_key,
+        "datatype": datatype
+    }
+
+    print(f"Getting monthly stock data for {name}")
+
+    response = session.get(ALPHA_VANTAGE_BASE_QUERY_URL, params=params)  # may use request instead of session
+
+    if "5 calls per minute and 500 calls per day" in response.text:
+        print("5 calls per minute were exceeded. Waiting for 1 minute...")
+        time.sleep(API_CALL_SLEEP_SEC)
+        response = session.get(ALPHA_VANTAGE_BASE_QUERY_URL, params=params)
+
+    if response.status_code == requests.codes.ok:
+        df = pd.read_csv(StringIO(response.text))
+        df.to_csv(os.path.join(
+            os.path.dirname(__file__),
+            f"{STOCK_DATA_FOLDER}/{name}.csv"
+        ))
+
+        print(f"data for {name} was downloaded")
+    else:
+        raise Exception(response.status_code, response.reason)
+
+
+def get_crypto_currency_data(session, name, symbol, market, api_key, function, datatype):
+    params = {
+        "function": function,
+        "symbol": symbol,
+        "market": market,
+        "apikey": api_key,
+        "datatype": datatype
+    }
+
+    print(f"Getting monthly digital currency data for {name}")
+
+    response = session.get(ALPHA_VANTAGE_BASE_QUERY_URL, params=params)  # may use request instead of session
+
+    if "5 calls per minute and 500 calls per day" in response.text:
+        print("5 calls per minute were exceeded. Waiting for 1 minute...")
+        time.sleep(API_CALL_SLEEP_SEC)
+        response = session.get(ALPHA_VANTAGE_BASE_QUERY_URL, params=params)
+
+    if response.status_code == requests.codes.ok:
+        df = pd.read_csv(StringIO(response.text))
+        df.to_csv(os.path.join(
+            os.path.dirname(__file__),
+            f"{CRYPTO_CURRENCY_DATA_FOLDER}/{name}.csv"
+        ))
+
+        print(f"data for {name} was downloaded")
+    else:
+        raise Exception(response.status_code, response.reason)
+
+
+def get_hryvnia_currency_data(session, name, from_symbol, to_symbol, api_key, function, datatype):
+    params = {
+        "function": function,
+        "from_symbol": from_symbol,
+        "to_symbol": to_symbol,
+        "apikey": api_key,
+        "datatype": datatype
+    }
+
+    print(f"Getting monthly hryvnia currency data for {name}")
+
+    response = session.get(ALPHA_VANTAGE_BASE_QUERY_URL, params=params)  # may use request instead of session
+
+    if "5 calls per minute and 500 calls per day" in response.text:
+        print("5 calls per minute were exceeded. Waiting for 1 minute...")
+        time.sleep(API_CALL_SLEEP_SEC)
+        response = session.get(ALPHA_VANTAGE_BASE_QUERY_URL, params=params)
+
+    if response.status_code == requests.codes.ok:
+        df = pd.read_csv(StringIO(response.text))
+        df.to_csv(os.path.join(
+            os.path.dirname(__file__),
+            f"{HRYVNIA_CURRENCY_DATA_FOLDER}/{name}.csv"
+        ))
+
+        print(f"data for {name} was downloaded")
+    else:
+        raise Exception(response.status_code, response.reason)
+
+
+def load_stocks_data_from_files():
+    csv_files = [
+        f for f in listdir(STOCK_DATA_FOLDER) if (isfile(join(STOCK_DATA_FOLDER, f)) and f.endswith(".csv"))]
+
+    stock_file_path = join(STOCK_DATA_FOLDER, csv_files[0])
+    row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
+    row_data = row_data.drop(columns=["Unnamed: 0"])
+    row_data.insert(0, "name", csv_files[0].split('.')[0])
+    stocks_data = row_data
+
+    for index, stock_file in enumerate(csv_files):
+        if index == 0:
+            continue
+
+        stock_file_path = join(STOCK_DATA_FOLDER, stock_file)
+        row_data = pd.read_csv(stock_file_path, nrows=10)  # todo move to settings
+        row_data = row_data.drop(columns=["Unnamed: 0"])
+        row_data.insert(0, "name", stock_file.split('.')[0])
+
+        stocks_data = pd.concat([stocks_data, row_data[0:10]])   # todo move to settings
+
+    return stocks_data
+
+
+def load_crypto_currencies_data_from_files():
+    csv_files = [
+        f for f in listdir(CRYPTO_CURRENCY_DATA_FOLDER) if (isfile(join(CRYPTO_CURRENCY_DATA_FOLDER, f))
+                                                            and f.endswith(".csv"))]
+
+    crypto_currency_file_path = join(CRYPTO_CURRENCY_DATA_FOLDER, csv_files[0])
+    row_data = pd.read_csv(crypto_currency_file_path, nrows=10)  # todo move to settings
+    row_data = row_data.drop(columns=["Unnamed: 0"])
+    row_data.insert(0, "name", csv_files[0].split('.')[0])
+    crypto_currency_data = row_data
+
+    for index, crypto_currency_file in enumerate(csv_files):
+        if index == 0:
+            continue
+
+        crypto_currency_file_path = join(CRYPTO_CURRENCY_DATA_FOLDER, crypto_currency_file)
+        row_data = pd.read_csv(crypto_currency_file_path, nrows=10)  # todo move to settings
+        row_data = row_data.drop(columns=["Unnamed: 0"])
+        row_data.insert(0, "name", crypto_currency_file.split('.')[0])
+
+        crypto_currency_data = pd.concat([crypto_currency_data, row_data[0:10]])   # todo move to settings
+
+    return crypto_currency_data
+
+
+def load_hryvnia_data_from_files():
+    csv_files = [
+        f for f in listdir(HRYVNIA_CURRENCY_DATA_FOLDER) if (isfile(join(HRYVNIA_CURRENCY_DATA_FOLDER, f))
+                                                             and f.endswith(".csv"))]
+
+    hryvnia_currency_file_path = join(HRYVNIA_CURRENCY_DATA_FOLDER, csv_files[0])
+    row_data = pd.read_csv(hryvnia_currency_file_path, nrows=10)  # todo move to settings
+    row_data = row_data.drop(columns=["Unnamed: 0"])
+    row_data.insert(0, "name", csv_files[0].split('.')[0])
+    hryvnia_currency_data = row_data
+
+    for index, stock_file in enumerate(csv_files):
+        if index == 0:
+            continue
+
+        hryvnia_currency_file_path = join(HRYVNIA_CURRENCY_DATA_FOLDER, stock_file)
+        row_data = pd.read_csv(hryvnia_currency_file_path, nrows=10)  # todo move to settings
+        row_data = row_data.drop(columns=["Unnamed: 0"])
+        row_data.insert(0, "name", stock_file.split('.')[0])
+
+        hryvnia_currency_data = pd.concat([hryvnia_currency_data, row_data[0:10]])   # todo move to settings
+
+    return hryvnia_currency_data
+
+
+@app.callback(
+    Output('stock-graph', 'figure'),
+    Input('stock-yaxis', 'value'),
+)
+def update_stock_graph(yaxis_column_name):
+    fig = px.line(stocks, x="timestamp", y=yaxis_column_name, color="name")
+    return fig
+
+
+@app.callback(
+    Output("stock-loading-output", "children"),
+    [Input("update-stock", "n_clicks")]
+)
+def update_stock(n):
+    if n:
+        load_stock_data()
+        global stocks
+        stocks = load_stocks_data_from_files()
+        return "Stock data were updated, please reload the page"
+
+
+@app.callback(
+    Output('crypto-graph', 'figure'),
+    Input('crypto-yaxis', 'value'),
+)
+def update_crypto_graph(yaxis_column_name):
+    fig = px.line(crypto, x="timestamp", y=yaxis_column_name, color="name")
+    return fig
+
+
+@app.callback(
+    Output("crypto-loading-output", "children"),
+    [Input("update-crypto", "n_clicks")]
+)
+def update_crypto(n):
+    if n:
+        load_crypto_currency_data()
+        global crypto
+        crypto = load_crypto_currencies_data_from_files()
+        return "Crypto currencies data were updated, please reload the page"
+
+
+@app.callback(
+    Output('hryvnia-graph', 'figure'),
+    Input('hryvnia-yaxis', 'value'),
+)
+def update_hryvnia_graph(yaxis_column_name):
+    fig = px.line(hryvnia, x="timestamp", y=yaxis_column_name, color="name")
+    return fig
+
+
+@app.callback(
+    Output("hryvnia-loading-output", "children"),
+    [Input("update-hryvnia", "n_clicks")]
+)
+def update_hryvnia(n):
+    if n:
+        load_hryvnia_currency_data()
+        global hryvnia
+        hryvnia = load_hryvnia_data_from_files()
+        return "Hryvnia currencies data were updated, please reload the page"
+
+
+def load_stock_data():
+    _args = (
+        (session, name, symbol, API_KEY, "TIME_SERIES_MONTHLY", "csv")
+        for name, symbol in STOCKS.items()
+    )
+
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        futures = [pool.submit(get_stock_data, *args) for args in _args]
+        wait(futures, timeout=130, return_when=ALL_COMPLETED)
+
+    print("done")
+
+
+def load_crypto_currency_data():
+    _args = (
+        (session, name, symbol, "USD", API_KEY, "DIGITAL_CURRENCY_MONTHLY", "csv")
+        for name, symbol in CRYPTO_CURRENCIES.items()
+    )
+
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        futures = [pool.submit(get_crypto_currency_data, *args) for args in _args]
+        wait(futures, timeout=130, return_when=ALL_COMPLETED)
+
+    print("done")
+
+
+def load_hryvnia_currency_data():
+    _args = (
+        (session, name, from_symbol, "UAH", API_KEY, "FX_MONTHLY", "csv")
+        for name, from_symbol in HRYVNIA_CURRENCY.items()
+    )
+
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        futures = [pool.submit(get_hryvnia_currency_data, *args) for args in _args]
+        wait(futures, timeout=130, return_when=ALL_COMPLETED)
+
+    print("done")
+
+
 if __name__ == '__main__':
     session = requests.Session()
 
@@ -228,5 +470,7 @@ if __name__ == '__main__':
     #     load_hryvnia_currency_data()
 
     stocks = load_stocks_data_from_files()
+    crypto = load_crypto_currencies_data_from_files()
+    hryvnia = load_hryvnia_data_from_files()
 
     app.run_server(debug=False)
