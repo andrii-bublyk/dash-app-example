@@ -18,11 +18,16 @@ import dash_bootstrap_components as dbc
 from whitenoise import WhiteNoise
 
 
-load_dotenv()
-API_KEY = os.environ.get("ALPHA_VANTAGE_API_KEY")
-STOCK_DATA_FOLDER = os.environ.get("STOCKS_DATA_FOLDER")
-CRYPTO_CURRENCY_DATA_FOLDER = os.environ.get("CRYPTO_CURRENCY_DATA_FOLDER")
-HRYVNIA_CURRENCY_DATA_FOLDER = os.environ.get("HRYVNIA_CURRENCY_DATA_FOLDER")
+# load_dotenv()
+# API_KEY = os.environ.get("ALPHA_VANTAGE_API_KEY")
+# STOCK_DATA_FOLDER = os.environ.get("STOCKS_DATA_FOLDER")
+# CRYPTO_CURRENCY_DATA_FOLDER = os.environ.get("CRYPTO_CURRENCY_DATA_FOLDER")
+# HRYVNIA_CURRENCY_DATA_FOLDER = os.environ.get("HRYVNIA_CURRENCY_DATA_FOLDER")
+
+API_KEY = "C9OM4S936JARE0JM"
+STOCK_DATA_FOLDER = "static/stocks/"
+CRYPTO_CURRENCY_DATA_FOLDER = "static/crypto/"
+HRYVNIA_CURRENCY_DATA_FOLDER = "static/hryvnia/"
 
 ALPHA_VANTAGE_BASE_QUERY_URL = "http://www.alphavantage.co/query"
 API_CALL_SLEEP_SEC = 60
