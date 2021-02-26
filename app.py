@@ -15,6 +15,7 @@ import dash_table
 from concurrent.futures import wait, ALL_COMPLETED
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
+from whitenoise import WhiteNoise
 
 
 load_dotenv()
@@ -50,7 +51,7 @@ CRYPTO_CURRENCIES = {
 HRYVNIA_CURRENCY = {
     "United States Dollar": "USD",
     "Euro": "EUR",
-    "Polish Zloty": "PLN",
+    # "Polish Zloty": "PLN",
     "Japanese Yen": "JPY",
     "British Pound Sterling": "GBP"
 }
@@ -60,6 +61,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 server = app.server
+server.wsgi_app = WhiteNoise(server.wsgi_app, root='static/')
 
 stocks = []
 crypto = []
@@ -503,5 +505,5 @@ if __name__ == '__main__':
 
     make_layout(stocks, crypto, hryvnia)
 
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 
